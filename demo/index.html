@@ -58,10 +58,11 @@ html, body, p, div {margin:0;padding:0;}
         maxScale: 1.5,
       },
       flipx: false,
+      flipy: false,
     });
 
-    ta.on('remove', function() {
-      console.log('remove');
+    ta.on('remove:touchend', function(e) {
+      console.log('remove', e);
       this.parent.removeChild(this);
     });
     ta.setPosition(Tiny.WIN_SIZE.width / 2, Tiny.WIN_SIZE.height / 2);
@@ -70,7 +71,7 @@ html, body, p, div {margin:0;padding:0;}
       'https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/heart.png',
       [1, -1],
       {
-        onStart: function(e) {
+        onTouchStart: function(e) {
           e.stopPropagation();
 
           console.log('custom start');

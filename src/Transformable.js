@@ -7,7 +7,7 @@ class Transformable extends Tiny.Container {
   constructor(sprite, opts = {}) {
     super();
 
-    const { frame = {}, drag = {}, zoom = {}, rotation = {}, remove = {}, flipx = {} } = opts;
+    const { frame = {}, drag = {}, zoom = {}, rotation = {}, remove = {}, flipx = {}, flipy = {} } = opts;
     const { width, height } = sprite.getBounds();
     const wh = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 
@@ -19,6 +19,7 @@ class Transformable extends Tiny.Container {
     this.$rotationOpt = { ...rotation };
     this.$removeOpt = { ...remove };
     this.$flipxOpt = { ...flipx };
+    this.$flipyOpt = { ...flipy };
     this.$sprite = sprite;
     this.$spriteContainer = new Tiny.Container();
     this.$container = new Tiny.Container();
@@ -61,6 +62,10 @@ class Transformable extends Tiny.Container {
       this.$container.addChild(this.createFlipX(w, h));
     }
 
+    if (!flipx && flipy) {
+      this.$container.addChild(this.createFlipY(w, h));
+    }
+
     Transformable.instancesPoll.push(this);
 
     this.on('removed', () => {
@@ -71,18 +76,24 @@ class Transformable extends Tiny.Container {
   activate() {
     Transformable.deactivateAll();
     this.$container.renderable = true;
-    this.parent.setChildIndex(this, Transformable.instancesPoll.length - 1);
+    this.parent.setChildIndex(this, this.parent.children.length - 1);
+    for (const key in this.$icons) {
+      this.$icons[key].setEventEnabled(true);
+    }
   }
 
   deactivate() {
     this.$container.renderable = false;
+    for (const key in this.$icons) {
+      this.$icons[key].setEventEnabled(false);
+    }
   }
 
   enableDrag() {
     const self = this;
     const cancelHandler = function(e) {
-      if (!this.dragging) return;
-      this.dragging = false;
+      if (!this.activated) return;
+      this.activated = false;
     };
 
     this.setEventEnabled(true);
@@ -92,11 +103,11 @@ class Transformable extends Tiny.Container {
 
       const { x, y } = e.data.getLocalPosition(this.parent);
 
-      this.dragging = true;
-      this.lastGlobalX = x;
-      this.lastGlobalY = y;
-      this.lastX = self.x;
-      this.lastY = self.y;
+      this.activated = true;
+      this.lastX = x;
+      this.lastY = y;
+      this.lastGlobalX = self.x;
+      this.lastGlobalY = self.y;
       self.activate();
     });
     this.on('pointermove', function(e) {
@@ -104,10 +115,10 @@ class Transformable extends Tiny.Container {
 
       const { x, y } = e.data.getLocalPosition(this.parent);
 
-      if (this.dragging && (this.lastGlobalX !== x || this.lastGlobalY !== y)) {
+      if (this.activated && (this.lastX !== x || this.lastY !== y)) {
         this.setPosition(
-          this.lastX + (x - this.lastGlobalX),
-          this.lastY + (y - this.lastGlobalY),
+          this.lastGlobalX + (x - this.lastX),
+          this.lastGlobalY + (y - this.lastY),
         );
       }
     });
@@ -142,8 +153,8 @@ class Transformable extends Tiny.Container {
     icon.setEventEnabled(true);
 
     const cancelHandler = function(e) {
-      if (!this.dragging) return;
-      this.dragging = false;
+      if (!this.activated) return;
+      this.activated = false;
     };
 
     icon.on('pointerdown', function(e) {
@@ -151,17 +162,17 @@ class Transformable extends Tiny.Container {
 
       const { x, y } = e.data.getLocalPosition(this.parent);
 
-      this.dragging = true;
-      this.lastGlobalX = x;
-      this.lastGlobalY = y;
+      this.activated = true;
+      this.lastX = x;
+      this.lastY = y;
     });
     icon.on('pointermove', function(e) {
       if (e.data.originalEvent.touches && e.data.originalEvent.touches.length > 1) return;
-      if (!this.dragging) return;
+      if (!this.activated) return;
 
       const { x, y } = e.data.getLocalPosition(this.parent);
-      const deltaX = x - this.lastGlobalX;
-      const deltaY = y - this.lastGlobalY;
+      const deltaX = x - this.lastX;
+      const deltaY = y - this.lastY;
       const alpha = Math.atan2(deltaY, deltaX);
       const deltaL = getLength(deltaX, deltaY);
       const scale = (deltaL / w) * 0.3;
@@ -207,8 +218,8 @@ class Transformable extends Tiny.Container {
     icon.setEventEnabled(true);
 
     const cancelHandler = function(e) {
-      if (!this.dragging) return;
-      this.dragging = false;
+      if (!this.activated) return;
+      this.activated = false;
       this.startAngle = Tiny.radian2deg(sprite.rotation);
     };
 
@@ -217,17 +228,17 @@ class Transformable extends Tiny.Container {
 
       const { x, y } = e.data.getLocalPosition(this.parent);
 
-      this.dragging = true;
-      this.lastGlobalX = x;
-      this.lastGlobalY = y;
+      this.activated = true;
+      this.lastX = x;
+      this.lastY = y;
       this.startAngle = Tiny.radian2deg(sprite.rotation);
     });
     icon.on('pointermove', function(e) {
       if (e.data.originalEvent.touches && e.data.originalEvent.touches.length > 1) return;
-      if (!this.dragging) return;
+      if (!this.activated) return;
 
       const { x, y } = e.data.getLocalPosition(this.parent);
-      const angle = getAngle(this.lastGlobalX, this.lastGlobalY, x, y);
+      const angle = getAngle(this.lastX, this.lastY, x, y);
       const rotateAngle = reticfyAngle(Math.round(this.startAngle + angle));
 
       sprite.setRotation(Tiny.deg2radian(rotateAngle));
@@ -235,6 +246,26 @@ class Transformable extends Tiny.Container {
     icon.on('pointerup', cancelHandler);
     icon.on('pointercancel', cancelHandler);
     icon.on('pointerupoutside', cancelHandler);
+
+    return icon;
+  }
+
+  createRemove(w, h) {
+    const { sprite: iconSprite } = this.$removeOpt;
+    const [img, a, b] = ICONS['remove'];
+    const icon = iconSprite && iconSprite instanceof Tiny.Sprite ? iconSprite : Tiny.Sprite.fromImage(img);
+
+    this.$icons['remove'] = icon;
+    icon.setAnchor(0.5);
+    icon.setPosition(w / 2 * a, h / 2 * b);
+    icon.setEventEnabled(true);
+
+    icon.on('pointerdown', (e) => {
+      e.stopPropagation();
+    });
+    icon.on('pointerup', (e) => {
+      this.emit('remove:touchend', e);
+    });
 
     return icon;
   }
@@ -254,20 +285,20 @@ class Transformable extends Tiny.Container {
       e.stopPropagation();
     });
     icon.on('pointerup', (e) => {
-      e.stopPropagation();
-
       sprite.scale.x *= -1;
+      this.emit('flipx:touchend', e);
     });
 
     return icon;
   }
 
-  createRemove(w, h) {
-    const { sprite: iconSprite } = this.$removeOpt;
-    const [img, a, b] = ICONS['remove'];
+  createFlipY(w, h) {
+    const { sprite: iconSprite } = this.$flipyOpt;
+    const [img, a, b] = ICONS['flipy'];
     const icon = iconSprite && iconSprite instanceof Tiny.Sprite ? iconSprite : Tiny.Sprite.fromImage(img);
+    const sprite = this.$sprite;
 
-    this.$icons['remove'] = icon;
+    this.$icons['flipy'] = icon;
     icon.setAnchor(0.5);
     icon.setPosition(w / 2 * a, h / 2 * b);
     icon.setEventEnabled(true);
@@ -276,9 +307,8 @@ class Transformable extends Tiny.Container {
       e.stopPropagation();
     });
     icon.on('pointerup', (e) => {
-      e.stopPropagation();
-
-      this.emit('remove');
+      sprite.scale.y *= -1;
+      this.emit('flipy:touchend', e);
     });
 
     return icon;
@@ -294,11 +324,11 @@ class Transformable extends Tiny.Container {
     icon.setAnchor(0.5);
     icon.setPosition(w / 2 * a, h / 2 * b);
     icon.setEventEnabled(true);
-    icon.on('pointerdown', listeners.onStart || noop);
-    icon.on('pointermove', listeners.onMove || noop);
-    icon.on('pointerup', listeners.onCancel || noop);
-    icon.on('pointercancel', listeners.onCancel || noop);
-    icon.on('pointerupoutside', listeners.onCancel || noop);
+    icon.on('pointerdown', listeners.onTouchStart || noop);
+    icon.on('pointermove', listeners.onTouchMove || noop);
+    icon.on('pointerup', listeners.onTouchEnd || noop);
+    icon.on('pointercancel', listeners.onTouchCancel || noop);
+    icon.on('pointerupoutside', listeners.onTouchCancel || noop);
 
     this.$container.addChild(icon);
   }
