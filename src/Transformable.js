@@ -11,8 +11,6 @@ class Transformable extends Tiny.Container {
     const { width, height } = sprite.getBounds();
     const wh = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 
-    // console.log(width, height);
-
     this.$icons = {};
     this.$frameOpt = { ...DEFAULT_FRAME, ...frame };
     this.$zoomOpt = { ...{ minScale: 0.5, maxScale: 1.5 }, ...zoom };
@@ -42,9 +40,7 @@ class Transformable extends Tiny.Container {
     this.$spriteContainer.addChild(sprite);
     this.$container.addChild(this.createFrame(w, h));
 
-    if (drag) {
-      this.enableDrag();
-    }
+    this.enableDrag(drag);
 
     if (zoom) {
       this.$container.addChild(this.createZoom(w, h));
@@ -89,7 +85,7 @@ class Transformable extends Tiny.Container {
     }
   }
 
-  enableDrag() {
+  enableDrag(drag) {
     const self = this;
     const cancelHandler = function(e) {
       if (!this.activated) return;
@@ -112,6 +108,7 @@ class Transformable extends Tiny.Container {
     });
     this.on('pointermove', function(e) {
       if (e.data.originalEvent.touches && e.data.originalEvent.touches.length > 1) return;
+      if (!drag) return;
 
       const { x, y } = e.data.getLocalPosition(this.parent);
 
