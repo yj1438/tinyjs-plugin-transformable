@@ -62,6 +62,7 @@ html, body, p, div {margin:0;padding:0;}
       flipy: false,
     });
 
+    ta.fixedIndex(true);
     ta.on('remove:touchend', function(e) {
       console.log('remove', e);
       this.parent.removeChild(this);

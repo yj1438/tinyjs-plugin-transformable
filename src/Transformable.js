@@ -11,6 +11,7 @@ class Transformable extends Tiny.Container {
     const { width, height } = sprite.getBounds();
     const wh = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
 
+    this.$fixedIndex = false;
     this.$icons = {};
     this.$frameOpt = { ...DEFAULT_FRAME, ...frame };
     this.$zoomOpt = { ...{ minScale: 0.5, maxScale: 1.5 }, ...zoom };
@@ -72,7 +73,11 @@ class Transformable extends Tiny.Container {
   activate() {
     Transformable.deactivateAll();
     this.$container.renderable = true;
-    this.parent.setChildIndex(this, this.parent.children.length - 1);
+
+    if (!this.$fixedIndex) {
+      this.parent.setChildIndex(this, this.parent.children.length - 1);
+    }
+
     for (const key in this.$icons) {
       this.$icons[key].setEventEnabled(true);
     }
@@ -83,6 +88,10 @@ class Transformable extends Tiny.Container {
     for (const key in this.$icons) {
       this.$icons[key].setEventEnabled(false);
     }
+  }
+
+  fixedIndex(fixed) {
+    this.$fixedIndex = fixed;
   }
 
   enableDrag(drag) {
