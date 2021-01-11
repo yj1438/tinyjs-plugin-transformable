@@ -68,6 +68,19 @@ class Transformable extends Tiny.Container {
     this.on('removed', () => {
       Tiny.arrayRemoveObject(Transformable.instancesPoll, this);
     });
+    this.on('added', () => {
+      const p = this.parent;
+      const cancelHandler = (e) => {
+        for (const key in this.$icons) {
+          this.$icons[key].activated = false;
+        }
+      };
+
+      p.on('pointerup', cancelHandler);
+      p.on('pointerout', cancelHandler);
+      p.on('pointercancel', cancelHandler);
+      p.on('pointerupoutside', cancelHandler);
+    });
   }
 
   activate() {
