@@ -1,6 +1,6 @@
 /**
  * @name        tinyjs-plugin-transformable
- * @overview    The Tiny.js plugin
+ * @overview    The Tiny.js plugin for transform something
  * @author      yiiqii
  * @license     MIT
  */

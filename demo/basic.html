@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>tinyjs-plugin-transformable Demo</title>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="yes" name="apple-touch-fullscreen"/>
+<meta content="telephone=no,email=no" name="format-detection"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+<style>
+html, body, p, div {margin:0;padding:0;}
+</style>
+</head>
+<body>
+
+<script src="https://gw.alipayobjects.com/os/lib/tinyjs/tiny/1.5.0/tiny.js"></script>
+<script src="../index.debug.js"></script>
+
+<script type="text/javascript">
+  // 新建 App
+  var app = new Tiny.Application({
+    dpi: 2,
+    width: 500,
+    height: 500,
+    fixSize: true,
+    showFPS: true,
+    renderOptions: {
+      antialias: true,
+      backgroundColor: 0x2a3145 // 画布背景色
+    }
+  });
+
+  var container = new Tiny.Container();
+  var loader = new Tiny.loaders.Loader();
+
+  loader.add({
+    name: 'logo',
+    url: 'https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png',
+  }).load(function() {
+    var sprite = Tiny.Sprite.fromImage('logo');
+    var ta = new Tiny.Transformable(sprite);
+
+    ta.setPosition(Tiny.WIN_SIZE.width / 2, Tiny.WIN_SIZE.height / 2);
+    container.addChild(ta);
+  });
+  app.run(container);
+</script>
+</body>
+</html>
