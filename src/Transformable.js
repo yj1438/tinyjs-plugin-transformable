@@ -1,3 +1,4 @@
+import * as Tiny from '@alipay/tiny.js';
 import { DEFAULT_FRAME } from './constants';
 import { Draggable, Frame, Zoom, Rotate, Remove, FlipX, FlipY, Widget } from './widget';
 
@@ -42,8 +43,6 @@ class Transformable extends Tiny.Container {
     super();
 
     const { frame = {}, drag = {}, zoom = {}, rotation = {}, remove = {}, flipx = {}, flipy = {} } = opts;
-    const { width, height } = target.getBounds();
-
     this.$fixedIndex = false;
     this.$icons = {};
 
@@ -66,66 +65,85 @@ class Transformable extends Tiny.Container {
      */
     this.widgetContainer = new Tiny.Container();
 
-    target.setAnchor(0.5);
+    /**
+     * texture 加载后的初始化
+     */
+    const textureLoadedFn = () => {
+      const { width, height } = target.getBounds();
+
+      // transformable 元素锚点在中心
+      target.setAnchor(0.5);
+
+      /**
+       * 被编辑显示对象的宽
+       *
+       * @type {number}
+       */
+      this.targetWidth = width;
+      /**
+       * 被编辑显示对象的高
+       *
+       * @type {number}
+       */
+      this.targetHeight = height;
+      this.deactivate();
+      this.addChild(this.spriteContainer);
+      this.addChild(this.widgetContainer);
+      this.spriteContainer.addChild(target);
+      this.widgetContainer.addChild(Frame.getInstance({ width, height, ...DEFAULT_FRAME, ...frame }));
+
+      new Draggable(this, drag); // eslint-disable-line
+
+      if (zoom) {
+        this.widgetContainer.addChild(Zoom.getInstance(this, { ...{ minScale: 0.5, maxScale: 1.5 }, ...zoom }));
+      }
+
+      if (rotation) {
+        this.widgetContainer.addChild(Rotate.getInstance(this, { ...rotation, fitness: ({ ...DEFAULT_FRAME, ...frame }).fitness }));
+      }
+
+      if (remove) {
+        this.widgetContainer.addChild(Remove.getInstance(this, { ...remove }));
+      }
+
+      if (flipx) {
+        this.widgetContainer.addChild(FlipX.getInstance(this, { ...flipx }));
+      }
+
+      if (!flipx && flipy) {
+        this.widgetContainer.addChild(FlipY.getInstance(this, { ...flipy }));
+      }
+
+      Transformable.instancesPoll.push(this);
+
+      this.on('removed', () => {
+        Tiny.arrayRemoveObject(Transformable.instancesPoll, this);
+      });
+      this.on('added', () => {
+        const p = this.parent;
+        const cancelHandler = (e) => {
+          for (const key in this.$icons) {
+            this.$icons[key].activated = false;
+          }
+        };
+
+        p.on('pointerup', cancelHandler);
+        p.on('pointerout', cancelHandler);
+        p.on('pointercancel', cancelHandler);
+        p.on('pointerupoutside', cancelHandler);
+      });
+    };
 
     /**
-     * 被编辑显示对象的宽
-     *
-     * @type {number}
+     * 等 texture 加载成功后初始化
      */
-    this.targetWidth = width;
-    /**
-     * 被编辑显示对象的高
-     *
-     * @type {number}
-     */
-    this.targetHeight = height;
-    this.deactivate();
-    this.addChild(this.spriteContainer);
-    this.addChild(this.widgetContainer);
-    this.spriteContainer.addChild(target);
-    this.widgetContainer.addChild(Frame.getInstance({ width, height, ...DEFAULT_FRAME, ...frame }));
-
-    new Draggable(this, drag); // eslint-disable-line
-
-    if (zoom) {
-      this.widgetContainer.addChild(Zoom.getInstance(this, { ...{ minScale: 0.5, maxScale: 1.5 }, ...zoom }));
+    if (target.texture.height <= 1 && target.texture.width <= 1) {
+      target.texture.once('update', () => {
+        textureLoadedFn();
+      });
+    } else {
+      textureLoadedFn();
     }
-
-    if (rotation) {
-      this.widgetContainer.addChild(Rotate.getInstance(this, { ...rotation, fitness: ({ ...DEFAULT_FRAME, ...frame }).fitness }));
-    }
-
-    if (remove) {
-      this.widgetContainer.addChild(Remove.getInstance(this, { ...remove }));
-    }
-
-    if (flipx) {
-      this.widgetContainer.addChild(FlipX.getInstance(this, { ...flipx }));
-    }
-
-    if (!flipx && flipy) {
-      this.widgetContainer.addChild(FlipY.getInstance(this, { ...flipy }));
-    }
-
-    Transformable.instancesPoll.push(this);
-
-    this.on('removed', () => {
-      Tiny.arrayRemoveObject(Transformable.instancesPoll, this);
-    });
-    this.on('added', () => {
-      const p = this.parent;
-      const cancelHandler = (e) => {
-        for (const key in this.$icons) {
-          this.$icons[key].activated = false;
-        }
-      };
-
-      p.on('pointerup', cancelHandler);
-      p.on('pointerout', cancelHandler);
-      p.on('pointercancel', cancelHandler);
-      p.on('pointerupoutside', cancelHandler);
-    });
 
     /**
      * Fired when remove touchend.
@@ -201,6 +219,14 @@ class Transformable extends Tiny.Container {
   }
 }
 
+/**
+ * 设定 container 范围
+ */
+Transformable.setDragArea = Draggable.setDragArea;
+
+/**
+ * 当前 transformable 元素
+ */
 Transformable.instancesPoll = [];
 
 /**

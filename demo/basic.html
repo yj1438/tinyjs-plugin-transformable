@@ -8,42 +8,44 @@
 <meta content="telephone=no,email=no" name="format-detection"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
 <style>
-html, body, p, div {margin:0;padding:0;}
+html, body, p, div { margin:0; padding:0; }
 </style>
 </head>
 <body>
-
-<script src="https://gw.alipayobjects.com/os/lib/tinyjs/tiny/1.5.0/tiny.js"></script>
+<canvas id="J_tinyapp"></canvas>
+<script src="https://gw.alipayobjects.com/os/lib/alipay/tiny.js/2.2.6/dist/browser/tiny.js"></script>
 <script src="../index.debug.js"></script>
 
 <script type="text/javascript">
   // 新建 App
   var app = new Tiny.Application({
-    dpi: 2,
-    width: 500,
-    height: 500,
-    fixSize: true,
+    view: 'J_tinyapp',
+    width: 750,
+    height: 750,
     showFPS: true,
-    renderOptions: {
-      antialias: true,
-      backgroundColor: 0x2a3145 // 画布背景色
-    }
+    antialias: true,
+    backgroundColor: 0x2a3145 // 画布背景色
   });
 
   var container = new Tiny.Container();
-  var loader = new Tiny.loaders.Loader();
-
-  loader.add({
-    name: 'logo',
-    url: 'https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png',
-  }).load(function() {
-    var sprite = Tiny.Sprite.fromImage('logo');
-    var ta = new Tiny.Transformable(sprite);
-
-    ta.setPosition(Tiny.WIN_SIZE.width / 2, Tiny.WIN_SIZE.height / 2);
-    container.addChild(ta);
-  });
   app.run(container);
+
+  // 限制拖拽范围
+  Tiny.Transformable.setDragArea(container, { offsetX: 100,offsetY: 100, width: 550, height: 550, strict: true });
+
+  var url = 'https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png';
+  
+  var sprite1 = Tiny.Sprite.from(url);
+  console.log(sprite1.getBounds());
+  var ta1 = new Tiny.Transformable(sprite1);
+  ta1.position.set(100, 100);
+  container.addChild(ta1);
+
+  // var sprite2 = Tiny.Sprite.from(url);
+  // var ta2 = new Tiny.Transformable(sprite2);
+  // ta2.position.set(200, 200);
+  // container.addChild(ta2);
+  
 </script>
 </body>
 </html>

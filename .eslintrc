@@ -7,7 +7,6 @@
   },
   "parser": "babel-eslint",
   "globals": {
-    "Tiny": true,
     "window": true,
     "Image": true
   },

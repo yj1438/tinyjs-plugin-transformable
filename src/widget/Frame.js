@@ -1,3 +1,5 @@
+import * as Tiny from '@alipay/tiny.js';
+
 class Frame {}
 
 Frame.getInstance = function(opts) {

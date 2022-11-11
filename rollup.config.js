@@ -12,6 +12,11 @@ const production = process.env.BUILD === 'production';
 const cjs = process.env.BUILD === 'cjs';
 const file = production ? `index.js` : (cjs ? `main.js` : `index.debug.js`);
 const format = cjs ? 'cjs' : 'umd';
+const globals = {
+  '@alipay/tiny.js': 'Tiny',
+};
+const external = Object.keys(globals);
+
 const banner = `/*!
  * Name: ${pkg.name}
  * Description: ${pkg.description}
@@ -20,11 +25,12 @@ const banner = `/*!
  */
 ${cjs ? `
 // AppX: adapter for the alibaba mini program
-if (typeof $global !== 'undefined') {
-  window = $global.window
-  navigator = window.navigator
-  Tiny = $global.Tiny
-}` : ''}`;
+// if (typeof $global !== 'undefined') {
+//   window = $global.window
+//   navigator = window.navigator
+//   Tiny = $global.Tiny
+// }
+` : ''}`;
 
 const config = {
   input: 'src/index.js',
@@ -33,7 +39,12 @@ const config = {
     format,
     name: 'Tiny.Transformable',
     banner,
+    globals,
+    amd: {
+      id: pkg.name,
+    },
   },
+  external,
   plugins: [
     resolve(),
     commonjs(),

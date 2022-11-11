@@ -1,3 +1,4 @@
+import * as Tiny from '@alipay/tiny.js';
 import { ICONS } from '../constants';
 
 const [img, a, b] = ICONS['flipy'];

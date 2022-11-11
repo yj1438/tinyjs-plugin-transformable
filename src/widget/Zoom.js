@@ -1,3 +1,4 @@
+import * as Tiny from '@alipay/tiny.js';
 import { ICONS } from '../constants';
 import { getLength } from '../utils';
 import { reticfyIcon } from '../common';

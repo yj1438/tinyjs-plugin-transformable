@@ -13,8 +13,7 @@
     "sinon": true,
     "expect": true,
     "assert": true,
-    "ok": true,
-    "Tiny": true
+    "ok": true
   },
   "rules": {
     "func-names": 0,

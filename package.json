@@ -1,6 +1,6 @@
 {
   "name": "tinyjs-plugin-transformable",
-  "version": "0.1.0",
+  "version": "1.0.0-beta.1",
   "author": "yiiqii",
   "description": "The Tiny.js plugin for transform something",
   "keywords": [
@@ -13,16 +13,13 @@
   },
   "engineStrict": true,
   "engines": {
-    "install-node": "^10.22.1"
+    "install-node": "^14"
   },
   "main": "index.debug.js",
   "files": [
     "index.js",
     "index.debug.js",
-    "main.js",
-    "src",
-    "demo",
-    "test"
+    "main.js"
   ],
   "scripts": {
     "dev": "rollup -c -m --watch",
@@ -33,7 +30,7 @@
     "build": "npm run build:debug && npm run build:prod && npm run build:cjs",
     "predoc": "rm -rf docs",
     "doc": "jsdoc README.md src -r -d docs -t node_modules/docdash",
-    "lint": "eslint src test/unit/**/*.test.js",
+    "lint": "eslint ./src",
     "test": "mocha ./test/unit/**/*.test.js --recursive --require ./test/setup.js",
     "ci": "npm run lint && npm run test",
     "preversion": "npm run ci",
@@ -41,6 +38,9 @@
     "prepublish": "npm run build"
   },
   "license": "MIT",
+  "peerDependencies": {
+    "@alipay/tiny.js": "^2.1.0"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-eslint": "^9.0.0",
@@ -63,7 +63,7 @@
     "rollup-plugin-cleanup": "^3.0.0",
     "rollup-plugin-commonjs": "^9.1.6",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "rollup-plugin-progress": "^0.4.0",
+    "rollup-plugin-progress": "^1.1.0",
     "rollup-plugin-serve": "^0.4.2",
     "rollup-plugin-uglify": "^3.0.0",
     "sinon": "^4.2.2",

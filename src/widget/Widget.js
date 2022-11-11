@@ -1,3 +1,4 @@
+import * as Tiny from '@alipay/tiny.js';
 import { noop } from '../utils';
 import { customIcons } from '../common';
 

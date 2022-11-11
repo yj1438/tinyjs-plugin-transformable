@@ -14,8 +14,8 @@ http://tinyjs.net/plugins/tinyjs-plugin-transformable.html#demo
 
 - 也可以直接引用线上cdn地址，注意要使用最新的版本号，例如：
 
-  - https://gw.alipayobjects.com/os/lib/tinyjs-plugin-transformable/0.1.0/index.js
-  - https://gw.alipayobjects.com/os/lib/tinyjs-plugin-transformable/0.1.0/index.debug.js
+  - https://gw.alipayobjects.com/os/lib/tinyjs-plugin-transformable/1.0.0/index.js
+  - https://gw.alipayobjects.com/os/lib/tinyjs-plugin-transformable/1.0.0/index.debug.js
 
 ## 起步
 首先当然是要引入，推荐`NPM`方式，当然你也可以使用`CDN`或下载独立版本，先从几个例子入手吧！
@@ -24,45 +24,23 @@ http://tinyjs.net/plugins/tinyjs-plugin-transformable.html#demo
 
 引用 Tiny.js 源码
 ``` html
-<script src="https://gw.alipayobjects.com/os/lib/tinyjs/tiny/1.5.0/tiny.js"></script>
+<script src="https://gw.alipayobjects.com/os/lib/alipay/tiny.js/2.2.6/dist/browser/tiny.js"></script>
 ```
 ``` js
 import Transformable from 'tinyjs-plugin-transformable';
 
 const app = new Tiny.Application({
-  // ...
-  renderOptions: {
-    antialias: true,
-  }
+  //...
 });
 const container = new Tiny.Container();
-const sprite = Tiny.Sprite.fromImage('https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png');
-
-// 需要等到纹理装载完成，要不然拿不到准确的宽高，你也可以使用 Loader 加载后实例化 Transformable
-sprite.texture.on('update', function() {
-  const ta = new Tiny.Transformable(sprite);
-
-  container.addChild(ta);
-});
 app.run(container);
+
+// 创建一个可 transformable 元素
+const sprite = Tiny.Sprite.from('https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png');
+const ta = new Tiny.Transformable(sprite);
+container.addChild(ta);
+
 ```
-
-也可以：
-``` js
-const loader = new Tiny.loaders.Loader();
-
-loader.add({
-  name: 'logo',
-  url: 'https://gw.alipayobjects.com/as/g/tiny/resources/1.0.0/images/logo.png',
-}).load(function() {
-  const sprite = Tiny.Sprite.fromImage('logo');
-  const ta = new Tiny.Transformable(sprite);
-
-  ta.setPosition(Tiny.WIN_SIZE.width / 2, Tiny.WIN_SIZE.height / 2);
-  container.addChild(ta);
-});
-```
-
 ##### 2、是否贴合
 
 即操作选框、控件是否贴合跟随被编辑的显示对象，默认是贴合的，你可以设置为不贴合：
@@ -126,7 +104,26 @@ container.on('pointerdown', Tiny.Transformable.deactivateAll);
 ta.fixedIndex(true);
 ```
 
-##### 6、监听回调
+##### 6、设定拖拽范围
+
+```js
+// 将 Tiny.Transformable 元素的拖拽范围限制在其父 container 相对范围内
+Tiny.Transformable.setDragArea(
+  // Tiny.Transformable 元素父容器
+  container,
+  // 相对 container 限制范围，用典型的 left/top + width/height
+  { 
+    offsetX: 100, // 相对 container 左上角 X
+    offsetY: 100, // 相对 container 左上角 Y
+    width: 550, // 拖拽范围 width
+    height: 550, // 拖拽范围 height
+    strict: true, // true: 严格元素在内部，false: 元素锚点在内部
+  },
+);
+
+```
+
+##### 7、监听回调
 
 ``` js
 // 点击 remove 按钮后的回调
@@ -136,7 +133,7 @@ ta.on('remove:touchend', function(e) {
 });
 ```
 
-##### 7、添加自定义控件
+##### 8、添加自定义控件
 
 ``` js
 var ta = new Tiny.Transformable(sprite, {
