@@ -71,9 +71,6 @@ class Transformable extends Tiny.Container {
     const textureLoadedFn = () => {
       const { width, height } = target.getBounds();
 
-      // transformable 元素锚点在中心
-      target.setAnchor(0.5);
-
       /**
        * 被编辑显示对象的宽
        *
@@ -91,6 +88,13 @@ class Transformable extends Tiny.Container {
       this.addChild(this.widgetContainer);
       this.spriteContainer.addChild(target);
       this.widgetContainer.addChild(Frame.getInstance({ width, height, ...DEFAULT_FRAME, ...frame }));
+
+      // transformable 元素锚点在中心
+      if (target.anchor) {
+        target.anchor.set(0.5);
+      } else {
+        this.spriteContainer.pivot.set(width / 2, height / 2);
+      }
 
       new Draggable(this, drag); // eslint-disable-line
 
@@ -137,7 +141,7 @@ class Transformable extends Tiny.Container {
     /**
      * 等 texture 加载成功后初始化
      */
-    if (target.texture.height <= 1 && target.texture.width <= 1) {
+    if (target.isSprite && target.texture.height <= 1 && target.texture.width <= 1) {
       target.texture.once('update', () => {
         textureLoadedFn();
       });

@@ -13,6 +13,9 @@ class FlipX extends Tiny.Sprite {
     });
     this.on('pointerup', (e) => {
       target.scale.x *= -1;
+      if (!target.anchor) {
+        target.position.x = target.scale.x > 0 ? 0 : target.width;
+      }
       parent.emit('flipx:touchend', e);
     });
   }

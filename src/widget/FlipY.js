@@ -13,6 +13,9 @@ class FlipY extends Tiny.Sprite {
     });
     this.on('pointerup', (e) => {
       target.scale.y *= -1;
+      if (!target.anchor) {
+        target.position.y = target.scale.y > 0 ? 0 : target.height;
+      }
       parent.emit('flipy:touchend', e);
     });
   }
