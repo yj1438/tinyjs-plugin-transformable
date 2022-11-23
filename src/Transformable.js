@@ -192,6 +192,14 @@ class Transformable extends Tiny.Container {
     }
   }
 
+  disable() {
+    this.setEventEnabled(false);
+  }
+
+  enable() {
+    this.setEventEnabled(true);
+  }
+
   /**
    * 是否按添加的顺序固定 index
    *
@@ -241,6 +249,29 @@ Transformable.instancesPoll = [];
 Transformable.deactivateAll = () => {
   Transformable.instancesPoll.forEach(item => {
     item.deactivate();
+  });
+};
+
+/**
+ * 所有元素不可编辑
+ *
+ * @static
+ */
+Transformable.disableAll = () => {
+  Transformable.instancesPoll.forEach(item => {
+    item.deactivate();
+    item.disable();
+  });
+};
+
+/**
+ * 所有元素恢复编辑
+ *
+ * @static
+ */
+Transformable.enableAll = () => {
+  Transformable.instancesPoll.forEach(item => {
+    item.enable();
   });
 };
 
