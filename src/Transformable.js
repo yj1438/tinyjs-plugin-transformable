@@ -170,15 +170,19 @@ class Transformable extends Tiny.Container {
    * 激活编辑态
    */
   activate() {
-    Transformable.deactivateAll();
-    this.widgetContainer.renderable = true;
+    if (!this.widgetContainer.visible) {
+      Transformable.deactivateAll();
+      this.widgetContainer.visible = true;
 
-    if (!this.$fixedIndex) {
-      this.parent.setChildIndex(this, this.parent.children.length - 1);
-    }
+      if (!this.$fixedIndex) {
+        this.parent.setChildIndex(this, this.parent.children.length - 1);
+      }
 
-    for (const key in this.$icons) {
-      this.$icons[key].setEventEnabled(true);
+      for (const key in this.$icons) {
+        this.$icons[key].setEventEnabled(true);
+      }
+
+      this.emit('activate');
     }
   }
 
@@ -186,9 +190,13 @@ class Transformable extends Tiny.Container {
    * 休眠编辑态
    */
   deactivate() {
-    this.widgetContainer.renderable = false;
-    for (const key in this.$icons) {
-      this.$icons[key].setEventEnabled(false);
+    if (this.widgetContainer.visible) {
+      this.widgetContainer.visible = false;
+      for (const key in this.$icons) {
+        this.$icons[key].setEventEnabled(false);
+      }
+
+      this.emit('deactivate');
     }
   }
 
