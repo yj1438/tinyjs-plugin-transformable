@@ -4,7 +4,10 @@
 
 - 增加拖拽范围的限制
 - 增加对九宫格等非 Sprite 元素的支持
+- 自行处理 sprite 加载
 - 优化 anchor/pivot 的适配
+- bugfix: Widget 使用 renderable 导致不显示状态下还是能点击的问题
+- 增加 activate deactivate 事件
 
 ## 0.1.0
 
