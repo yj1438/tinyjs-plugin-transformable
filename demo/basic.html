@@ -34,45 +34,45 @@ html, body, p, div { margin:0; padding:0; }
   // 限制拖拽范围
   // Tiny.Transformable.setDragArea(container, { offsetX: 0,offsetY: 0, width: 750, height: 750, strict: true });
 
-  // var url1 = 'https://mdn.alipayobjects.com/wufu_ainianhuabase/afts/img/KBk8TKwLpA8AAAAAAAAAAAAAD-GGAQBr/original';
+  var url1 = 'https://mdn.alipayobjects.com/wufu_ainianhuabase/afts/img/KBk8TKwLpA8AAAAAAAAAAAAAD-GGAQBr/original';
   
-  // var sprite1 = Tiny.Sprite.from(url1);
-  // console.log(sprite1.getBounds());
-  // var ta1 = new Tiny.Transformable(sprite1);
-  // ta1.position.set(100, 100);
-  // container.addChild(ta1);
-
-  // var url2 = 'https://mdn.alipayobjects.com/huamei_p0cigc/afts/img/A*9OFtRpbZk2AAAAAAAAAAAAAADoB5AQ/original';
-  // // var url2 = 'https://gw.alipayobjects.com/mdn/social_tod/afts/img/A*se8OTY3qO8sAAAAAAAAAAAAAARQnAQ';
-  // var sprite2 = Tiny.Sprite.from(url2);
-  // console.log(sprite1.getBounds());
-  // var ta2 = new Tiny.Transformable(sprite2);
-  // ta2.on('activate', function () {
-  //   console.log('ta2, activate');
-  // });
-  // ta2.on('deactivate', function () {
-  //   console.log('ta2, deactivate');
-  // });
-  // ta2.on('remove:touchend', function(e) {
-  //   console.log('remove', e);
-  //   this.parent.removeChild(this);
-  // });
-  // // ta1.position.set(100, 100);
-  // container.addChild(ta2);
-  
+  var sprite1 = Tiny.Sprite.from(url1);
+  console.log(sprite1.getBounds());
+  var ta1 = new Tiny.Transformable(sprite1);
+  ta1.position.set(100, 100);
+  container.addChild(ta1);
 
   var url2 = 'https://mdn.alipayobjects.com/huamei_p0cigc/afts/img/A*9OFtRpbZk2AAAAAAAAAAAAAADoB5AQ/original';
-  // 普通 sprite
+  // var url2 = 'https://gw.alipayobjects.com/mdn/social_tod/afts/img/A*se8OTY3qO8sAAAAAAAAAAAAAARQnAQ';
   var sprite2 = Tiny.Sprite.from(url2);
+  console.log(sprite1.getBounds());
   var ta2 = new Tiny.Transformable(sprite2);
-  ta2.position.set(350, 350);
+  ta2.on('activate', function () {
+    console.log('ta2, activate');
+  });
+  ta2.on('deactivate', function () {
+    console.log('ta2, deactivate');
+  });
+  ta2.on('remove:click', function(e) {
+    console.log('remove', e);
+    this.parent.removeChild(this);
+  });
+  // ta1.position.set(100, 100);
   container.addChild(ta2);
-  // 九宫格等非 sprite 情况
-  const texture = Tiny.Texture.from(url2);
-  const np = new Tiny.ui.NinePatch(texture, 400, 400, [100, 100, 100, 100], 0)
-  const tanp = new Tiny.Transformable(np);
-  tanp.position.set(350, 350);
-  container.addChild(tanp);
+  
+
+  // var url2 = 'https://mdn.alipayobjects.com/huamei_p0cigc/afts/img/A*9OFtRpbZk2AAAAAAAAAAAAAADoB5AQ/original';
+  // // 普通 sprite
+  // var sprite2 = Tiny.Sprite.from(url2);
+  // var ta2 = new Tiny.Transformable(sprite2);
+  // ta2.position.set(350, 350);
+  // container.addChild(ta2);
+  // // 九宫格等非 sprite 情况
+  // const texture = Tiny.Texture.from(url2);
+  // const np = new Tiny.ui.NinePatch(texture, 400, 400, [100, 100, 100, 100], 0)
+  // const tanp = new Tiny.Transformable(np);
+  // tanp.position.set(350, 350);
+  // container.addChild(tanp);
   
 </script>
 </body>

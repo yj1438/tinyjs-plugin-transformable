@@ -12,6 +12,9 @@ class Remove extends Tiny.Sprite {
     this.on('pointerup', (e) => {
       parent.emit('remove:touchend', e);
     });
+    this.on('pointertap', (e) => {
+      parent.emit('remove:click', e);
+    });
   }
 }
 
