@@ -69,6 +69,8 @@ class Transformable extends Tiny.Container {
      * texture 加载后的初始化
      */
     const textureLoadedFn = () => {
+      const _width = target.width;
+      const _height = target.height;
       const { width, height } = target.getBounds();
 
       /**
@@ -76,24 +78,24 @@ class Transformable extends Tiny.Container {
        *
        * @type {number}
        */
-      this.targetWidth = width;
+      this.targetWidth = Math.max(_width, width);
       /**
        * 被编辑显示对象的高
        *
        * @type {number}
        */
-      this.targetHeight = height;
+      this.targetHeight = Math.max(_height, height);
       this.deactivate();
       this.addChild(this.spriteContainer);
       this.addChild(this.widgetContainer);
       this.spriteContainer.addChild(target);
-      this.widgetContainer.addChild(Frame.getInstance({ width, height, ...DEFAULT_FRAME, ...frame }));
+      this.widgetContainer.addChild(Frame.getInstance({ width: this.targetWidth, height: this.targetHeight, ...DEFAULT_FRAME, ...frame }));
 
       // transformable 元素锚点在中心
       if (target.anchor) {
         target.anchor.set(0.5);
       } else {
-        this.spriteContainer.pivot.set(width / 2, height / 2);
+        this.spriteContainer.pivot.set(this.targetWidth / 2, this.targetHeight / 2);
       }
 
       new Draggable(this, drag); // eslint-disable-line
@@ -141,9 +143,14 @@ class Transformable extends Tiny.Container {
     /**
      * 等 texture 加载成功后初始化
      */
-    if (target.isSprite && target.texture.height <= 1 && target.texture.width <= 1) {
-      target.texture.once('update', () => {
+    if (target.isSprite && target.texture.baseTexture.resource) {
+      const r = target.texture.baseTexture.resource;
+      const loaded = r.load();
+      loaded.then(data => {
         textureLoadedFn();
+        // console.log(target.width, target.height); // texture 完成加载
+      }).catch(error => {
+        console.error('sprite image load error: ', error.path); // image 加载失败
       });
     } else {
       textureLoadedFn();
